@@ -148,7 +148,7 @@ Twoje imię i nazwisko:
 
 <input 
 id="mainName"
-placeholder="Np. Jan Kowalski">
+placeholder="">
 
 
 <h3>Zapraszane osoby:</h3>
@@ -168,7 +168,7 @@ Liczba osób: 0
 
 
 <button id="sendButton" class="send" onclick="sendForm()">
-✅ Wyślij zgłoszenie
+✅ Wyślij
 </button>
 
 
@@ -337,7 +337,7 @@ async function sendForm(){
 
 
         document.getElementById("message").innerHTML =
-        "✅ Zgłoszenie zapisane!";
+        "✅ Zapisane!";
 
 
         document.getElementById("mainName").value="";
