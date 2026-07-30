@@ -8,164 +8,245 @@
 
 <style>
 
-body {
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#f2f4f8;
-    font-family:Arial, sans-serif;
+* {
+    box-sizing: border-box;
 }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    font-family: Arial, sans-serif;
+}
+
 
 .container {
-    background:white;
-    width:90%;
-    max-width:450px;
-    padding:30px;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+
+    width: 92%;
+    max-width: 450px;
+    background: white;
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+
 }
+
 
 h1 {
+
     text-align:center;
+    margin-bottom:25px;
+
 }
+
+
+label {
+
+    font-weight:bold;
+
+}
+
 
 input {
+
     width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
+    padding:14px;
+    margin-top:8px;
+    border-radius:12px;
+    border:1px solid #ddd;
     font-size:16px;
+
 }
 
-.guest {
+
+.guest-row {
+
     display:flex;
     align-items:center;
     gap:10px;
-    margin-top:10px;
+    margin-top:12px;
+
 }
+
 
 .number {
+
     width:25px;
     font-weight:bold;
+
 }
+
 
 button {
+
     width:100%;
-    margin-top:15px;
-    padding:13px;
+    padding:14px;
+    margin-top:18px;
     border:none;
-    border-radius:12px;
+    border-radius:14px;
     font-size:16px;
     cursor:pointer;
+
 }
+
 
 .add {
-    background:#e9eefc;
+
+    background:#e8edff;
+    color:#333;
+
 }
+
 
 .send {
+
     background:#2563eb;
     color:white;
+
 }
 
-#count {
+
+.counter {
+
     text-align:center;
     margin-top:15px;
     font-weight:bold;
+
 }
+
+
+.success {
+
+    text-align:center;
+    color:green;
+    margin-top:15px;
+
+}
+
 
 </style>
 
 </head>
 
+
 <body>
+
 
 <div class="container">
 
+
 <h1>Lista gości</h1>
+
 
 <label>
 Twoje imię i nazwisko:
 </label>
 
-<input id="name" placeholder="Np. Michał Nierychlewski">
+
+<input 
+id="mainName"
+placeholder="Np. Jan Kowalski">
 
 
 <h3>Zapraszane osoby:</h3>
 
-<div id="guests"></div>
+
+<div id="guestList"></div>
+
 
 <button class="add" onclick="addGuest()">
 ➕ Dodaj osobę
 </button>
 
-<div id="count">
+
+<div class="counter" id="counter">
 Liczba osób: 0
 </div>
+
 
 <button class="send" onclick="sendForm()">
 ✅ Wyślij zgłoszenie
 </button>
 
 
+<div class="success" id="message"></div>
+
+
 </div>
+
 
 
 <script>
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU8GZbyee-u5vhY5vgsLLvC1987oG5jS|wD1-xМс3QiJBy5ATpyiEYkb1ZFtalf3…";
+
+// Wklej tutaj swój link Apps Script
+
+const SCRIPT_URL = "TU_WKLEJ_SWÓJ_LINK_APPS_SCRIPT";
 
 
 let guests = [];
 
 
+
+// dodawanie osoby
+
 function addGuest(){
 
     guests.push("");
 
-    render();
+    renderGuests();
 
 }
 
 
-function render(){
 
-    const box=document.getElementById("guests");
+// wyświetlanie listy
+
+function renderGuests(){
+
+
+    const box = document.getElementById("guestList");
 
     box.innerHTML="";
 
 
-    guests.forEach((g,index)=>{
+    guests.forEach((guest,index)=>{
+
 
         box.innerHTML += `
-        <div class="guest">
 
-        <div class="number">
-        ${index+1}.
+        <div class="guest-row">
+
+            <div class="number">
+                ${index+1}.
+            </div>
+
+            <input 
+            placeholder="Imię i nazwisko"
+            value="${guest}"
+            oninput="updateGuest(${index},this.value)">
+
         </div>
 
-        <input 
-        value="${g}"
-        placeholder="Imię i nazwisko"
-        oninput="updateGuest(${index},this.value)"
-        >
-
-        </div>
         `;
+
 
     });
 
 
-    document.getElementById("count").innerHTML =
+
+    document.getElementById("counter").innerHTML =
     "Liczba osób: " + guests.length;
+
 
 }
 
 
+
+// zmiana wpisu
 
 function updateGuest(index,value){
 
@@ -175,42 +256,113 @@ function updateGuest(index,value){
 
 
 
+// wysyłanie
+
 async function sendForm(){
 
-    const name=document.getElementById("name").value;
+
+    const name =
+    document.getElementById("mainName").value.trim();
 
 
-    if(name.trim()===""){
+
+    if(name===""){
+
         alert("Wpisz swoje imię i nazwisko");
+
         return;
+
     }
+
 
 
     if(guests.length===0){
+
         alert("Dodaj przynajmniej jedną osobę");
+
         return;
+
     }
 
 
-    const data={
+
+    const cleanGuests =
+    guests.filter(g=>g.trim()!=="");
+
+
+
+    if(cleanGuests.length===0){
+
+        alert("Wpisz dane zapraszanych osób");
+
+        return;
+
+    }
+
+
+
+    const data = {
+
         name:name,
-        guests:guests
+
+        guests:cleanGuests
+
     };
 
 
-    await fetch(SCRIPT_URL,{
-        method:"POST",
-        body:JSON.stringify(data)
-    });
+
+    try{
 
 
-    alert("Dzięki! Zgłoszenie zapisane.");
+        await fetch(SCRIPT_URL,{
+
+            method:"POST",
+
+            mode:"no-cors",
+
+            headers:{
+
+                "Content-Type":"application/json"
+
+            },
+
+            body:JSON.stringify(data)
+
+        });
 
 
-    document.getElementById("name").value="";
 
-    guests=[];
+        document.getElementById("message").innerHTML =
+        "✅ Zgłoszenie zapisane!";
 
-    render();
+
+        document.getElementById("mainName").value="";
+
+
+        guests=[];
+
+        renderGuests();
+
+
+
+    }
+
+
+    catch(error){
+
+
+        alert("Wystąpił błąd podczas wysyłania");
+
+
+    }
+
 
 }
+
+
+
+</script>
+
+
+</body>
+</html>
