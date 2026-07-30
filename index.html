@@ -167,7 +167,7 @@ Liczba osób: 0
 </div>
 
 
-<button class="send" onclick="sendForm()">
+<button id="sendButton" class="send" onclick="sendForm()">
 ✅ Wyślij zgłoszenie
 </button>
 
@@ -259,7 +259,11 @@ function updateGuest(index,value){
 // wysyłanie
 
 async function sendForm(){
+    
+    const button = document.getElementById("sendButton");
 
+    button.disabled = true;
+    button.innerHTML = "⏳ Wysyłanie...";
 
     const name =
     document.getElementById("mainName").value.trim();
