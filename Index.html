@@ -1,1 +1,222 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Lista gości</title>
+
+<style>
+
+body {
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#f2f4f8;
+    font-family:Arial, sans-serif;
+}
+
+.container {
+    background:white;
+    width:90%;
+    max-width:450px;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+h1 {
+    text-align:center;
+}
+
+input {
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+    font-size:16px;
+}
+
+.guest {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+}
+
+.number {
+    width:25px;
+    font-weight:bold;
+}
+
+button {
+    width:100%;
+    margin-top:15px;
+    padding:13px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.add {
+    background:#e9eefc;
+}
+
+.send {
+    background:#2563eb;
+    color:white;
+}
+
+#count {
+    text-align:center;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Lista gości</h1>
+
+<label>
+Twoje imię i nazwisko:
+</label>
+
+<input id="name" placeholder="Np. Michał Nierychlewski">
+
+
+<h3>Zapraszane osoby:</h3>
+
+<div id="guests"></div>
+
+<button class="add" onclick="addGuest()">
+➕ Dodaj osobę
+</button>
+
+<div id="count">
+Liczba osób: 0
+</div>
+
+<button class="send" onclick="sendForm()">
+✅ Wyślij zgłoszenie
+</button>
+
+
+</div>
+
+
+<script>
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU8GZbyee-u5vhY5vgsLLvC1987oG5jS|wD1-xМс3QiJBy5ATpyiEYkb1ZFtalf3…";
+
+
+let guests = [];
+
+
+function addGuest(){
+
+    guests.push("");
+
+    render();
+
+}
+
+
+function render(){
+
+    const box=document.getElementById("guests");
+
+    box.innerHTML="";
+
+
+    guests.forEach((g,index)=>{
+
+        box.innerHTML += `
+        <div class="guest">
+
+        <div class="number">
+        ${index+1}.
+        </div>
+
+        <input 
+        value="${g}"
+        placeholder="Imię i nazwisko"
+        oninput="updateGuest(${index},this.value)"
+        >
+
+        </div>
+        `;
+
+    });
+
+
+    document.getElementById("count").innerHTML =
+    "Liczba osób: " + guests.length;
+
+}
+
+
+
+function updateGuest(index,value){
+
+    guests[index]=value;
+
+}
+
+
+
+async function sendForm(){
+
+    const name=document.getElementById("name").value;
+
+
+    if(name.trim()===""){
+        alert("Wpisz swoje imię i nazwisko");
+        return;
+    }
+
+
+    if(guests.length===0){
+        alert("Dodaj przynajmniej jedną osobę");
+        return;
+    }
+
+
+    const data={
+        name:name,
+        guests:guests
+    };
+
+
+    await fetch(SCRIPT_URL,{
+        method:"POST",
+        body:JSON.stringify(data)
+    });
+
+
+    alert("Dzięki! Zgłoszenie zapisane.");
+
+
+    document.getElementById("name").value="";
+
+    guests=[];
+
+    render();
+
+}
+
+
+</script>
+
+</body>
+</html>
