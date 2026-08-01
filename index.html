@@ -13,9 +13,7 @@
     box-sizing:border-box;
 }
 
-
 body {
-
     margin:0;
     min-height:100vh;
     display:flex;
@@ -23,7 +21,6 @@ body {
     align-items:center;
     background:linear-gradient(135deg,#667eea,#764ba2);
     font-family:Arial,sans-serif;
-
 }
 
 
@@ -40,21 +37,16 @@ body {
 
 
 h1 {
-
     text-align:center;
-    margin-bottom:25px;
-
 }
 
 
 label {
-
     font-weight:bold;
-
 }
 
 
-input {
+input, select {
 
     width:100%;
     padding:14px;
@@ -100,7 +92,6 @@ button {
 .add {
 
     background:#e8edff;
-    color:#333;
 
 }
 
@@ -109,13 +100,6 @@ button {
 
     background:#2563eb;
     color:white;
-
-}
-
-
-button:disabled {
-
-    opacity:.6;
 
 }
 
@@ -207,8 +191,8 @@ function addGuest(){
     guests.push({
 
         name:"",
-        idSeries:"",
-        idNumber:""
+        documentType:"Dowód osobisty",
+        documentNumber:""
 
     });
 
@@ -219,12 +203,11 @@ function addGuest(){
 
 
 
-// wyświetlanie
+// wyświetlenie osób
 
 function renderGuests(){
 
-
-    const box = document.getElementById("guestList");
+    const box=document.getElementById("guestList");
 
     box.innerHTML="";
 
@@ -238,38 +221,48 @@ function renderGuests(){
         <div class="guest-box">
 
 
-            <div class="guest-title">
-                Osoba ${index+1}
-            </div>
+        <div class="guest-title">
+        Osoba ${index+1}
+        </div>
 
 
-            <input
 
-            placeholder="Imię i nazwisko"
+        <input
 
-            value="${guest.name}"
+        placeholder="Imię i nazwisko"
 
-            oninput="updateGuest(${index},'name',this.value)">
+        value="${guest.name}"
 
-
-            <input
-
-            placeholder="Seria dowodu (np. ABC)"
-
-            maxlength="3"
-
-            value="${guest.idSeries}"
-
-            oninput="updateGuest(${index},'idSeries',this.value.toUpperCase())">
+        oninput="updateGuest(${index},'name',this.value)">
 
 
-            <input
 
-            placeholder="Numer dowodu"
+        <select
 
-            value="${guest.idNumber}"
+        onchange="updateGuest(${index},'documentType',this.value)">
 
-            oninput="updateGuest(${index},'idNumber',this.value)">
+
+            <option ${guest.documentType==="Dowód osobisty"?"selected":""}>
+            Dowód osobisty
+            </option>
+
+
+            <option ${guest.documentType==="Paszport"?"selected":""}>
+            Paszport
+            </option>
+
+
+        </select>
+
+
+
+        <input
+
+        placeholder="Numer dokumentu"
+
+        value="${guest.documentNumber}"
+
+        oninput="updateGuest(${index},'documentNumber',this.value.toUpperCase())">
 
 
         </div>
@@ -281,9 +274,7 @@ function renderGuests(){
     });
 
 
-
     document.getElementById("counter").innerHTML =
-
     "Liczba osób: " + guests.length;
 
 
@@ -306,127 +297,122 @@ function updateGuest(index,field,value){
 async function sendForm(){
 
 
-    const button = document.getElementById("sendButton");
+const button=document.getElementById("sendButton");
 
 
-    const name =
-    document.getElementById("mainName").value.trim();
+const name=document.getElementById("mainName").value.trim();
 
 
 
-    if(name===""){
+if(name===""){
 
-        alert("Wpisz swoje imię i nazwisko");
+alert("Wpisz swoje imię i nazwisko");
 
-        return;
+return;
 
-    }
+}
 
 
 
-    if(guests.length===0){
+if(guests.length===0){
 
-        alert("Dodaj przynajmniej jedną osobę");
+alert("Dodaj przynajmniej jedną osobę");
 
-        return;
+return;
 
-    }
+}
 
 
 
-    const cleanGuests = guests.filter(g =>
+const cleanGuests = guests.filter(g =>
 
-        g.name.trim() !== "" &&
+g.name.trim()!=="" &&
 
-        g.idSeries.trim() !== "" &&
+g.documentNumber.trim()!==""
 
-        g.idNumber.trim() !== ""
+);
 
-    );
 
 
+if(cleanGuests.length !== guests.length){
 
-    if(cleanGuests.length !== guests.length){
+alert("Uzupełnij wszystkie dane zaproszonych osób");
 
-        alert("Uzupełnij wszystkie dane zaproszonych osób");
+return;
 
-        return;
+}
 
-    }
 
 
+button.disabled=true;
 
-    button.disabled=true;
+button.innerHTML="⏳ Wysyłanie...";
 
-    button.innerHTML="⏳ Wysyłanie...";
 
 
+const data={
 
-    const data={
+name:name,
 
-        name:name,
+guests:cleanGuests
 
-        guests:cleanGuests
+};
 
-    };
 
 
+try{
 
-    try{
 
+await fetch(SCRIPT_URL,{
 
-        await fetch(SCRIPT_URL,{
+method:"POST",
 
-            method:"POST",
+mode:"no-cors",
 
-            mode:"no-cors",
+headers:{
 
-            headers:{
+"Content-Type":"application/json"
 
-                "Content-Type":"application/json"
+},
 
-            },
+body:JSON.stringify(data)
 
-            body:JSON.stringify(data)
+});
 
-        });
 
 
+document.getElementById("message").innerHTML="✅ Zapisane!";
 
-        document.getElementById("message").innerHTML =
-        "✅ Zapisane!";
 
+document.getElementById("mainName").value="";
 
-        document.getElementById("mainName").value="";
 
+guests=[];
 
-        guests=[];
+renderGuests();
 
-        renderGuests();
 
 
+}
 
-    }
+catch(error){
 
 
-    catch(error){
+alert("Błąd podczas wysyłania");
 
 
-        alert("Wystąpił błąd podczas wysyłania");
+}
 
 
-    }
+finally{
 
 
-    finally{
+button.disabled=false;
 
+button.innerHTML="✅ Wyślij";
 
-        button.disabled=false;
 
-        button.innerHTML="✅ Wyślij";
-
-
-    }
+}
 
 
 
