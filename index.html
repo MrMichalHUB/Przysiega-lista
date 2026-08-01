@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,28 +10,31 @@
 <style>
 
 * {
-    box-sizing: border-box;
+    box-sizing:border-box;
 }
 
+
 body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    font-family: Arial, sans-serif;
+
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    font-family:Arial,sans-serif;
+
 }
 
 
 .container {
 
-    width: 92%;
-    max-width: 450px;
-    background: white;
-    padding: 30px;
-    border-radius: 25px;
-    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+    width:92%;
+    max-width:450px;
+    background:white;
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
 
 }
 
@@ -62,20 +66,20 @@ input {
 }
 
 
-.guest-row {
+.guest-box {
 
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-top:12px;
+    margin-top:15px;
+    padding:15px;
+    border-radius:15px;
+    background:#f5f7ff;
 
 }
 
 
-.number {
+.guest-title {
 
-    width:25px;
     font-weight:bold;
+    margin-bottom:8px;
 
 }
 
@@ -105,6 +109,13 @@ button {
 
     background:#2563eb;
     color:white;
+
+}
+
+
+button:disabled {
+
+    opacity:.6;
 
 }
 
@@ -148,7 +159,7 @@ Twoje imię i nazwisko:
 
 <input 
 id="mainName"
-placeholder="">
+placeholder="Imię i nazwisko">
 
 
 <h3>Zapraszane osoby:</h3>
@@ -182,8 +193,6 @@ Liczba osób: 0
 <script>
 
 
-// Wklej tutaj swój link Apps Script
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyb1hTjfuooj-AeKzqCLNzkhCRvHda5nh4nW03h5lErM-cNB-_aNKPnTfDfQtdRGsQ6/exec";
 
 
@@ -191,11 +200,18 @@ let guests = [];
 
 
 
-// dodawanie osoby
+// dodanie osoby
 
 function addGuest(){
 
-    guests.push("");
+    guests.push({
+
+        name:"",
+        idSeries:"",
+        idNumber:""
+
+    });
+
 
     renderGuests();
 
@@ -203,7 +219,7 @@ function addGuest(){
 
 
 
-// wyświetlanie listy
+// wyświetlanie
 
 function renderGuests(){
 
@@ -218,18 +234,46 @@ function renderGuests(){
 
         box.innerHTML += `
 
-        <div class="guest-row">
 
-            <div class="number">
-                ${index+1}.
+        <div class="guest-box">
+
+
+            <div class="guest-title">
+                Osoba ${index+1}
             </div>
 
-            <input 
+
+            <input
+
             placeholder="Imię i nazwisko"
-            value="${guest}"
-            oninput="updateGuest(${index},this.value)">
+
+            value="${guest.name}"
+
+            oninput="updateGuest(${index},'name',this.value)">
+
+
+            <input
+
+            placeholder="Seria dowodu (np. ABC)"
+
+            maxlength="3"
+
+            value="${guest.idSeries}"
+
+            oninput="updateGuest(${index},'idSeries',this.value.toUpperCase())">
+
+
+            <input
+
+            placeholder="Numer dowodu"
+
+            value="${guest.idNumber}"
+
+            oninput="updateGuest(${index},'idNumber',this.value)">
+
 
         </div>
+
 
         `;
 
@@ -239,6 +283,7 @@ function renderGuests(){
 
 
     document.getElementById("counter").innerHTML =
+
     "Liczba osób: " + guests.length;
 
 
@@ -246,11 +291,11 @@ function renderGuests(){
 
 
 
-// zmiana wpisu
+// aktualizacja
 
-function updateGuest(index,value){
+function updateGuest(index,field,value){
 
-    guests[index]=value;
+    guests[index][field]=value;
 
 }
 
@@ -259,11 +304,10 @@ function updateGuest(index,value){
 // wysyłanie
 
 async function sendForm(){
-    
+
+
     const button = document.getElementById("sendButton");
 
-    button.disabled = true;
-    button.innerHTML = "⏳ Wysyłanie...";
 
     const name =
     document.getElementById("mainName").value.trim();
@@ -290,14 +334,21 @@ async function sendForm(){
 
 
 
-    const cleanGuests =
-    guests.filter(g=>g.trim()!=="");
+    const cleanGuests = guests.filter(g =>
+
+        g.name.trim() !== "" &&
+
+        g.idSeries.trim() !== "" &&
+
+        g.idNumber.trim() !== ""
+
+    );
 
 
 
-    if(cleanGuests.length===0){
+    if(cleanGuests.length !== guests.length){
 
-        alert("Wpisz dane zapraszanych osób");
+        alert("Uzupełnij wszystkie dane zaproszonych osób");
 
         return;
 
@@ -305,7 +356,13 @@ async function sendForm(){
 
 
 
-    const data = {
+    button.disabled=true;
+
+    button.innerHTML="⏳ Wysyłanie...";
+
+
+
+    const data={
 
         name:name,
 
@@ -359,6 +416,18 @@ async function sendForm(){
 
 
     }
+
+
+    finally{
+
+
+        button.disabled=false;
+
+        button.innerHTML="✅ Wyślij";
+
+
+    }
+
 
 
 }
